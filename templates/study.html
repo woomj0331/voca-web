@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}암기{% endblock %}
+{% block body %}
+<h1>암기 — {{ day }}일차</h1>
+
+<section class="card">
+  <form class="row" method="get" action="/study">
+    <label>일차 <input type="number" name="day" value="{{ day }}" min="1" required></label>
+    <label>하루 단어 수 <input type="number" name="per_day" value="{{ per_day }}" min="1" max="200" required></label>
+    <button type="submit">이 일차로 시작</button>
+  </form>
+  <p class="hint">전체 {{ total_days }}일차. 신규 단어 + 전날 복습 30% + 자주 틀린 단어가 섞입니다.</p>
+</section>
+
+{% if not plan %}
+<p class="empty">{{ day }}일차에 외울 단어가 없습니다. 단어를 더 등록하거나 일차를 낮춰 보세요.</p>
+{% elif item %}
+<section class="card flash">
+  <p class="hint">{{ index + 1 }} / {{ plan|length }} · <span class="tag tag-{{ item.tag }}">{{ TAG_LABELS[item.tag] }}</span></p>
+  <p class="big">{{ item.word.term }}</p>
+  <details>
+    <summary>뜻 보기</summary>
+    <p class="big meaning">{{ item.word.meaning }}</p>
+  </details>
+  <form method="post" action="/study/next">
+    <input type="hidden" name="day" value="{{ day }}">
+    <input type="hidden" name="per_day" value="{{ per_day }}">
+    <input type="hidden" name="i" value="{{ index }}">
+    <input type="hidden" name="word_id" value="{{ item.word.id }}">
+    <input type="hidden" name="tag" value="{{ item.tag }}">
+    <button type="submit">외웠어요, 다음</button>
+  </form>
+</section>
+{% else %}
+<section class="card">
+  <p class="big">{{ day }}일차 암기를 마쳤습니다.</p>
+  <p><a class="button" href="/study?day={{ day + 1 }}&amp;per_day={{ per_day }}">{{ day + 1 }}일차 시작</a>
+     <a class="button secondary" href="/exam">시험 보러 가기</a></p>
+</section>
+{% endif %}
+{% endblock %}

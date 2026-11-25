@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}학습 통계{% endblock %}
+{% block body %}
+<h1>학습 진척 통계</h1>
+
+<section class="card">
+  <h2>진도 현황</h2>
+  <p class="big">{{ progress.current_day }}일차 <span class="hint">/ 전체 {{ progress.total_days }}일차 (하루 {{ per_day }}개 기준)</span></p>
+  <p>암기한 단어 {{ progress.studied }} / {{ progress.total }}개</p>
+  <div class="bar"><span style="width: {{ (100 * progress.studied / progress.total)|round|int if progress.total else 0 }}%"></span></div>
+  {% if progress.total == 0 %}<p class="empty">아직 단어가 없습니다. <a href="/words">단어 등록하기</a></p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>시험 성적 추이 — 회차별</h2>
+  {% if by_exam %}
+  <table>
+    <thead><tr><th>회차</th><th>날짜</th><th>정답</th><th>정답률</th></tr></thead>
+    <tbody>
+    {% for r in by_exam %}
+      <tr><td>{{ r.round }}회</td><td>{{ r.date }}</td><td>{{ r.right }} / {{ r.total }}</td>
+          <td><div class="bar small"><span style="width: {{ r.rate }}%"></span></div> {{ r.rate }}%</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">끝낸 시험이 없습니다. <a href="/exam">시험 보기</a></p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>시험 성적 추이 — 날짜별</h2>
+  {% if by_date %}
+  <table>
+    <thead><tr><th>날짜</th><th>정답</th><th>정답률</th></tr></thead>
+    <tbody>
+    {% for r in by_date %}
+      <tr><td>{{ r.date }}</td><td>{{ r.right }} / {{ r.total }}</td>
+          <td><div class="bar small"><span style="width: {{ r.rate }}%"></span></div> {{ r.rate }}%</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">아직 기록이 없습니다.</p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>자주 틀리는 단어 TOP {{ top_wrong|length if top_wrong else 10 }}</h2>
+  {% if top_wrong %}
+  <table>
+    <thead><tr><th>영단어</th><th>뜻</th><th>틀린 횟수</th><th>오답률</th></tr></thead>
+    <tbody>
+    {% for r in top_wrong %}
+      <tr><td>{{ r.term }}</td><td>{{ r.meaning }}</td><td>{{ r.wrong }} / {{ r.attempts }}</td><td>{{ r.rate }}%</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p class="empty">틀린 단어가 아직 없습니다.</p>{% endif %}
+</section>
+{% endblock %}

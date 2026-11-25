@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}시험 {{ seq }}번{% endblock %}
+{% block body %}
+<h1>시험 {{ seq }} / {{ exam.question_count }}</h1>
+<section class="card">
+  <p class="hint">{{ TYPE_LABELS[item.qtype] }} · {{ DIRECTION_LABELS[item.direction] }}</p>
+  <p class="big">{{ item.prompt }}</p>
+  <form method="post" action="/exam/{{ exam.id }}/{{ seq }}">
+    {% if item.qtype == 'short' %}
+      <p><input name="response" autocomplete="off" autofocus placeholder="정답 입력"></p>
+    {% elif item.qtype == 'mc4' %}
+      {% for choice in choices %}
+      <p><label class="choice"><input type="radio" name="response" value="{{ loop.index0 }}" required> {{ loop.index }}. {{ choice }}</label></p>
+      {% endfor %}
+    {% else %}
+      <p class="hint">이 뜻(또는 단어)이 맞는 짝일까요?</p>
+      <p class="big meaning">{{ item.shown }}</p>
+      <p>
+        <label class="choice"><input type="radio" name="response" value="O" required> O 맞음</label>
+        <label class="choice"><input type="radio" name="response" value="X"> X 틀림</label>
+      </p>
+    {% endif %}
+    <button type="submit">{% if seq >= exam.question_count %}제출하고 결과 보기{% else %}다음{% endif %}</button>
+  </form>
+</section>
+{% endblock %}

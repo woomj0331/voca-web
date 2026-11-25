@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}단어장{% endblock %} · 영단어 암기장</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">영단어 암기장</a>
+    <nav>
+      <a href="/">통계</a>
+      <a href="/words">단어</a>
+      <a href="/study">암기</a>
+      <a href="/exam">시험</a>
+    </nav>
+  </header>
+  <main class="page">
+    {% block body %}{% endblock %}
+  </main>
+</body>
+</html>

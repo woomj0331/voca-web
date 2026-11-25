@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}단어{% endblock %}
+{% block body %}
+<h1>단어 관리</h1>
+{% if msg %}<p class="notice">{{ msg }}</p>{% endif %}
+
+<section class="card">
+  <h2>단어 등록</h2>
+  <form class="row" method="post" action="/words/add">
+    <input name="term" placeholder="영단어" required maxlength="100">
+    <input name="meaning" placeholder="뜻" required maxlength="200">
+    <button type="submit">등록</button>
+  </form>
+  <form class="row" method="post" action="/words/import" enctype="multipart/form-data">
+    <input type="file" name="csv_file" accept=".csv,text/csv" required>
+    <button type="submit">CSV 가져오기</button>
+  </form>
+  <p class="hint">CSV 형식: 첫 줄 <code>영단어,뜻</code>, UTF-8. 이미 있는 영단어는 기존 뜻을 유지하고 건너뜁니다.</p>
+</section>
+
+<section class="card">
+  <h2>단어 목록 <span class="hint">전체 {{ total }}개{% if query %} (검색: {{ query }}){% endif %}</span></h2>
+  <form class="row" method="get" action="/words">
+    <input name="q" value="{{ query }}" placeholder="영단어 또는 뜻 검색">
+    <button type="submit">검색</button>
+  </form>
+  {% if rows %}
+  <table>
+    <thead><tr><th>영단어</th><th>뜻</th><th>관리</th></tr></thead>
+    <tbody>
+    {% for w in rows %}
+      <tr>
+        <td>{{ w.term }}</td>
+        <td>{{ w.meaning }}</td>
+        <td>
+          <details>
+            <summary>수정·삭제</summary>
+            <form class="row" method="post" action="/words/{{ w.id }}/edit">
+              <input name="term" value="{{ w.term }}" required maxlength="100">
+              <input name="meaning" value="{{ w.meaning }}" required maxlength="200">
+              <button type="submit">저장</button>
+            </form>
+            <form method="post" action="/words/{{ w.id }}/delete">
+              <button type="submit" class="danger">삭제</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="pager">
+    {% if page > 1 %}<a href="/words?q={{ query|urlencode }}&amp;page={{ page - 1 }}">이전</a>{% endif %}
+    {{ page }} / {{ pages }}
+    {% if page < pages %}<a href="/words?q={{ query|urlencode }}&amp;page={{ page + 1 }}">다음</a>{% endif %}
+  </p>
+  {% else %}
+  <p class="empty">등록된 단어가 없습니다. 위에서 등록하거나 CSV를 가져오세요.</p>
+  {% endif %}
+</section>
+{% endblock %}

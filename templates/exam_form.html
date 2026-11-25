@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}시험{% endblock %}
+{% block body %}
+<h1>시험</h1>
+{% if msg %}<p class="notice">{{ msg }}</p>{% endif %}
+<section class="card">
+  <p class="hint">등록된 단어 {{ total }}개. 본 적 없는 단어, 오래된 단어, 자주 틀린 단어가 더 많이 나옵니다.</p>
+  <form method="post" action="/exam/start">
+    <p><label>문제 수 <input type="number" name="count" value="10" min="1" max="100" required></label></p>
+    <p>출제 방향
+      {% for d in directions %}
+      <label class="inline"><input type="radio" name="direction" value="{{ d }}" {% if loop.first %}checked{% endif %}> {{ DIRECTION_LABELS[d] }}</label>
+      {% endfor %}
+    </p>
+    <p>출제 형식
+      {% for t in types %}
+      <label class="inline"><input type="checkbox" name="types" value="{{ t }}" {% if t != 'ox' %}checked{% endif %}> {{ TYPE_LABELS[t] }}</label>
+      {% endfor %}
+    </p>
+    <button type="submit">시험 시작</button>
+  </form>
+</section>
+{% endblock %}

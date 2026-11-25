@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}시험 결과{% endblock %}
+{% block body %}
+<h1>시험 결과</h1>
+<section class="card">
+  <p class="big">{{ right }} / {{ total }} 정답 ({{ rate }}점)</p>
+  <div class="bar"><span style="width: {{ rate }}%"></span></div>
+</section>
+
+{% if wrong %}
+<section class="card">
+  <h2>틀린 문항</h2>
+  <table>
+    <thead><tr><th>번호</th><th>문제</th><th>내 답</th><th>정답</th></tr></thead>
+    <tbody>
+    {% for w in wrong %}
+      <tr>
+        <td>{{ w.seq }}</td>
+        <td>{{ w.prompt }}{% if w.qtype == 'ox' %} → {{ w.shown }}{% endif %}</td>
+        <td>{{ w.given if w.given != '' else '(무응답)' }}</td>
+        <td>{{ w.answer }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% else %}
+<p class="notice">모두 맞혔습니다!</p>
+{% endif %}
+<p><a class="button" href="/exam">다시 시험 보기</a> <a class="button secondary" href="/">통계 보기</a></p>
+{% endblock %}
