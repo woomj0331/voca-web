@@ -34,15 +34,21 @@ def parse_time(text):
 
 # ---------- 단어 (VOCA-FR-001~004) ----------
 
-def add_word(conn, term, meaning):
-    """단어를 등록한다. 영단어가 이미 있으면(대소문자 무시) 등록하지 않고 False."""
+def _insert_word(conn, term, meaning):
+    """커밋하지 않고 한 줄 넣는다. 영단어가 이미 있으면 False."""
     try:
         conn.execute("INSERT INTO words (term, meaning, created_at) VALUES (?, ?, ?)",
                      (term, meaning, now_text()))
-        conn.commit()
         return True
     except sqlite3.IntegrityError:
         return False
+
+
+def add_word(conn, term, meaning):
+    """단어를 등록한다. 영단어가 이미 있으면(대소문자 무시) 등록하지 않고 False."""
+    added = _insert_word(conn, term, meaning)
+    conn.commit()
+    return added
 
 
 def update_word(conn, word_id, term, meaning):
@@ -96,10 +102,11 @@ def import_csv(conn, raw_bytes):
     for row in rows:
         if len(row) < 2 or not row[0].strip() or not row[1].strip():
             invalid += 1
-        elif add_word(conn, row[0].strip(), row[1].strip()):
+        elif _insert_word(conn, row[0].strip(), row[1].strip()):
             added += 1
         else:
             duplicated += 1
+    conn.commit()   # 한 번에 커밋한다. 행마다 커밋하면 2,000행에 13초가 걸렸다.
     return added, duplicated, invalid
 
 

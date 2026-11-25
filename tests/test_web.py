@@ -8,6 +8,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -110,6 +111,17 @@ class WordsTest(WebTestCase):
         self.assertEqual(count, 31)                     # sample 31단어, apple 은 기존 것 유지
         self.assertEqual(self.rows("SELECT meaning FROM words WHERE term='apple'")[0]["meaning"],
                          "기존 뜻")
+
+    def test_csv_import_2000_rows_is_fast(self):       # 행마다 commit 하면 13초 걸렸다
+        rows = ["영단어,뜻"] + [f"word{i:04d},뜻{i:04d}" for i in range(1, 2001)]
+        data = "\r\n".join(rows).encode("utf-8-sig")
+        started = time.time()
+        conn = db.connect(self.db_path)
+        try:
+            self.assertEqual(store.import_csv(conn, data), (2000, 0, 0))
+        finally:
+            conn.close()
+        self.assertLess(time.time() - started, 3)
 
     def test_csv_invalid_rows_skipped_and_wrong_encoding(self):
         data = "영단어,뜻\nonly_one\n,빈단어\nok,좋아\n".encode("utf-8-sig")
